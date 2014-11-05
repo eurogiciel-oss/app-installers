@@ -14,9 +14,7 @@
 
 
 static const char *list[] = {
-  "info/manifest.xml",
-  "signature1.xml",
-  "author-signature.xml"
+  "config.xml"
 };
 
 
