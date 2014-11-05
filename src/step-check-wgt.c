@@ -9,7 +9,7 @@
 
 #include "context.h"
 #include "step.h"
-#include "step-check.h"
+#include "step-check-wgt.h"
 #include "fail.h"
 
 
@@ -51,4 +51,4 @@ make (struct context *context)
   return 0;
 }
 
-struct step step_check = {.make = make,.unmake = 0,.clean = 0 };
+struct step step_check_wgt = {.make = make,.unmake = 0,.clean = 0 };

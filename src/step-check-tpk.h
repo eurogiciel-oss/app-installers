@@ -2,4 +2,4 @@
 #pragma once
 
 struct step;
-extern struct step step_check;
+extern struct step step_check_tpk;

@@ -25,6 +25,7 @@ BuildRequires:  pkgconfig(vconf)
 Requires(post): privilege-checker
 
 Requires:       wgt-installer
+Requires:       tpk-installer
 
 %description
 This is a meta package that installs the common application
@@ -36,6 +37,13 @@ Summary: Installer of WGT files
 
 %description -n wgt-installer
 Installer of standard widget files WGT
+
+#######################################################
+%package -n tpk-installer
+Summary: Installer of TPK files
+
+%description -n tpk-installer
+Installer of tizen package files TPK
 
 #######################################################
 %prep
@@ -50,14 +58,24 @@ Installer of standard widget files WGT
 
 mkdir -p %{buildroot}/etc/package-manager/backend
 ln -s /usr/bin/wgt-installer %{buildroot}/etc/package-manager/backend/wgt
+ln -s /usr/bin/tpk-installer %{buildroot}/etc/package-manager/backend/tpk
 
 
 #######################################################
-%post -n wgt-installer -p /sbin/ldconfig
+%post -n wgt-installer
 
 %files -n wgt-installer
 %manifest wgt-installer.manifest
 %license COPYING
 /usr/bin/wgt-installer
 /etc/package-manager/backend/wgt
+
+#######################################################
+%post -n tpk-installer
+
+%files -n tpk-installer
+%manifest tpk-installer.manifest
+%license COPYING
+/usr/bin/tpk-installer
+/etc/package-manager/backend/tpk
 

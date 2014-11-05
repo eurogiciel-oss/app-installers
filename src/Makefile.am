@@ -1,18 +1,27 @@
 #/* 2014, Copyright © Intel Coporation, license MIT, see COPYING file */
 
-bin_PROGRAMS = wgt-installer
+bin_PROGRAMS = wgt-installer tpk-installer
 
-wgt_installer_CFLAGS = $(EXTDEPS_CFLAGS)
-
-wgt_installer_LDADD = $(EXTDEPS_LIBS)
-
-wgt_installer_SOURCES = \
-	backend.c \
+commonsrcs = \
 	fail.c \
 	options.c \
 	step.c \
-	step-drm.c \
 	step-unpack.c \
-	step-check.c \
-	step-manifest.c \
 	utils.c
+
+wgt_installer_SOURCES = \
+	$(commonsrcs) \
+	backend-wgt.c \
+	step-check-wgt.c 
+
+wgt_installer_CFLAGS = $(EXTDEPS_CFLAGS)
+wgt_installer_LDADD = $(EXTDEPS_LIBS)
+
+tpk_installer_SOURCES = \
+	$(commonsrcs) \
+	backend-tpk.c \
+	step-check-tpk.c 
+
+tpk_installer_CFLAGS = $(EXTDEPS_CFLAGS)
+tpk_installer_LDADD = $(EXTDEPS_LIBS)
+
