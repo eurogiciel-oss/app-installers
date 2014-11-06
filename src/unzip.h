@@ -1,5 +1,4 @@
 /* 2014, Copyright © Intel Coporation, license MIT, see COPYING file */
-#define _DEFAULT_SOURCE
-#define _GNU_SOURCE
+#pragma once
 
-
+int unzip (const char *targetdir, const char *zipfile);

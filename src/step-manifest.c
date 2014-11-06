@@ -10,7 +10,6 @@
 #include "context.h"
 #include "step.h"
 #include "step-manifest.h"
-#include "utils.h"
 
 static int
 make (struct context *context)

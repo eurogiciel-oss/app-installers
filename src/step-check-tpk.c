@@ -30,7 +30,7 @@ make (struct context *context)
 
   len = (int) strlen (context->unpack_directory);
   if (len + 1 >= PATH_MAX)
-    return fail(ENAMETOOLONG, "Name too long %s", context->unpack_directory);
+    return fail (ENAMETOOLONG, "Name too long %s", context->unpack_directory);
 
   memcpy (buffer, context->unpack_directory, len);
   buffer[len++] = '/';
@@ -40,11 +40,11 @@ make (struct context *context)
     {
       n = 1 + (int) strlen (list[idx]);
       if (len + n > PATH_MAX)
-	return fail(ENAMETOOLONG, "Name too long %s/%s", context->unpack_directory,
-		  list[idx]);
+	return fail (ENAMETOOLONG, "Name too long %s/%s",
+		     context->unpack_directory, list[idx]);
       memcpy (buffer + len, list[idx], n);
       if (access (buffer, F_OK))
-	return fail(ENOENT, "File not found %s", buffer);
+	return fail (ENOENT, "File not found %s", buffer);
       idx++;
     }
 

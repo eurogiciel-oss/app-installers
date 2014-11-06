@@ -66,7 +66,7 @@ get_package_id_from_package_path (const char *path)
 	}
     }
   else
-    fail(ENOTSUP, "Unsupported package mode for path %s", path);
+    fail (ENOTSUP, "Unsupported package mode for path %s", path);
   return result;
 }
 
@@ -97,7 +97,7 @@ install ()
     }
 
   /* TODO */
-  status = step_run(install_steps, &context);
+  status = step_run (install_steps, &context);
 
   return 0;
 }
@@ -144,19 +144,19 @@ main (int argc, char **argv)
   switch (pkgmgr_installer_get_request_type (pi))
     {
     case PKGMGR_REQ_INSTALL:
-      result = install();
+      result = install ();
       break;
 
     case PKGMGR_REQ_UNINSTALL:
-      result = uninstall();
+      result = uninstall ();
       break;
 
     case PKGMGR_REQ_REINSTALL:
-      result = reinstall();
+      result = reinstall ();
       break;
 
     case PKGMGR_REQ_MOVE:
-      result = move();
+      result = move ();
       break;
 
     case PKGMGR_REQ_CLEAR:

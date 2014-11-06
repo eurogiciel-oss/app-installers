@@ -4,9 +4,11 @@ bin_PROGRAMS = wgt-installer tpk-installer
 
 commonsrcs = \
 	fail.c \
+	fs.c \
 	options.c \
 	step.c \
 	step-unpack.c \
+	unzip.c \
 	utils.c
 
 wgt_installer_SOURCES = \
