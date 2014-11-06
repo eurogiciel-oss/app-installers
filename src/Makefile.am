@@ -7,6 +7,7 @@ commonsrcs = \
 	fs.c \
 	options.c \
 	step.c \
+	step-check-signature.c \
 	step-unpack.c \
 	unzip.c \
 	utils.c

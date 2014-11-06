@@ -1,7 +1,5 @@
 /* 2014, Copyright © Intel Coporation, license MIT, see COPYING file */
-#define _DEFAULT_SOURCE
-#define _GNU_SOURCE
+#pragma once
 
-
-#include "utils.h"
-
+struct step;
+extern struct step step_check_signature;

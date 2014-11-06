@@ -9,12 +9,13 @@
 
 #include "context.h"
 #include "step.h"
-#include "step-check-wgt.h"
+#include "step-check-signature.h"
 #include "fail.h"
-
+#include "utils.h"
 
 static const char *list[] = {
-  "info/manifest.xml"
+  "signature1.xml",
+  "author-signature.xml"
 };
 
 
@@ -49,4 +50,4 @@ make (struct context *context)
   return 0;
 }
 
-struct step step_check_tpk = {.make = make,.unmake = 0,.clean = 0 };
+struct step step_check_signature = {.make = make,.unmake = 0,.clean = 0 };

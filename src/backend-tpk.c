@@ -16,6 +16,7 @@
 #include "context.h"
 #include "step.h"
 #include "step-unpack.h"
+#include "step-check-signature.h"
 #include "step-check-tpk.h"
 
 static pkgmgr_installer *pi = 0;
@@ -24,6 +25,7 @@ static struct context context;
 
 static struct step *install_steps[] = {
   &step_unpack,
+  &step_check_signature,
   &step_check_tpk,
   NULL
 };

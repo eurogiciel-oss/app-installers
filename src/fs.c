@@ -15,6 +15,7 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/sendfile.h>
 
 #include "fs.h"
 
@@ -95,7 +96,7 @@ _explore_directory_content (struct explore_dirs *ed)
   struct dirent *ent;
   int length;
   int n;
-#if defined(_DIRENT_HAVE_D_TYPE)
+#if !defined(_DIRENT_HAVE_D_TYPE)
   struct stat s;
 #endif
 
@@ -305,7 +306,8 @@ fs_copy_directory (const char *dest, const char *src, int force)
     fs_explore (src,
 		wants_regular | wants_directory_pre | wants_error_on_unwanted,
 		_cbfun_copy, NULL);
-  chdir (savewd);
+  if (chdir (savewd))
+    return -1;
 
   return result;
 }
