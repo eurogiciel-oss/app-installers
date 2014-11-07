@@ -51,7 +51,8 @@ Installer of tizen package files TPK
 
 %build 
 %reconfigure
-%__make %{?jobs:-j%jobs}
+# %__make %{?jobs:-j%jobs}
+%__make -j1
 
 %install
 %make_install
