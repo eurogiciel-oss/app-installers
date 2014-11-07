@@ -51,7 +51,8 @@ main ()
   fs_explore ("toto", wants_all, px, NULL);
   fs_copy_directory ("tata", "toto", 1);
   fs_remove_any ("toto");
-  fs_mkdir ("tata///tata/tata//titi", 0777);
+  fs_set_mkdir_mode(0777);
+  fs_mkdir ("tata///tata/tata//titi");
   fs_explore ("tata", wants_any_pre, px, NULL);
   return 0;
 }

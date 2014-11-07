@@ -29,6 +29,8 @@ struct explore_dirs
 
 static enum fs_action _explore_directory_content (struct explore_dirs *ed);
 
+static mode_t _dirmode = 0700;
+
 static enum fs_action
 _explore_entry (struct explore_dirs *ed, enum fs_type type)
 {
@@ -319,7 +321,7 @@ _cbfun_copy (const struct fs_entry *entry)
 
   memcpy (cd->path + cd->length, entry->relpath, length + 1);
   return entry->type == type_regular ?
-    fs_copy_file (cd->path, entry->path, 1) : mkdir (cd->path, 0700);
+    fs_copy_file (cd->path, entry->path, 1) : mkdir (cd->path, _dirmode);
 }
 
 int
@@ -328,7 +330,7 @@ fs_copy_directory (const char *dest, const char *src, int force)
   int result, length;
   struct copy_directory cd;
 
-  if (fs_mkdir (dest, 0700))
+  if (fs_mkdir (dest))
     return -1;
 
   length = (int) strlen (dest);
@@ -348,13 +350,13 @@ fs_copy_directory (const char *dest, const char *src, int force)
 }
 
 int
-fs_mkdir (const char *path, mode_t mode)
+fs_mkdir (const char *path)
 {
   int result, length, iter;
   char buffer[PATH_MAX];
   struct stat s;
 
-  result = mkdir (path, mode);
+  result = mkdir (path, _dirmode);
   if (result && errno == ENOENT)
     {
       length = (int) strlen (path);
@@ -371,7 +373,7 @@ fs_mkdir (const char *path, mode_t mode)
 	  while (iter && buffer[iter - 1] == '/')
 	    iter--;
 	  buffer[iter] = 0;
-	  result = mkdir (buffer, mode);
+	  result = mkdir (buffer, _dirmode);
 	}
       while (result && errno == ENOENT);
       if (!result)
@@ -380,7 +382,7 @@ fs_mkdir (const char *path, mode_t mode)
 	    {
 	      buffer[iter] = '/';
 	      while (++iter < length && buffer[iter]);
-	      result = mkdir (buffer, mode);
+	      result = mkdir (buffer, _dirmode);
 	    }
 	  while (!result && iter < length);
 	}
@@ -394,3 +396,13 @@ fs_mkdir (const char *path, mode_t mode)
     }
   return result;
 }
+
+mode_t fs_set_mkdir_mode(mode_t mode)
+{
+  mode_t result;
+
+  result = _dirmode;
+  _dirmode = mode;
+  return result;
+}
+

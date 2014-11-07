@@ -22,13 +22,17 @@ int fs_copy_file (const char *dest, const char *src, int force);
 /* Copies recursively the content of the directory of path 'src'
  to the directory of path 'dest' ('dest' is created if it doesn't exist).
  If 'force'==0 existing files are not overwriten and an error if returned.
- If 'force'==1 existing files are overwriten. */
+ If 'force'==1 existing files are overwriten. SEE: fs_set_mkdir_mode. */
 int fs_copy_directory (const char *dest, const char *src, int force);
 
 /* Create the directory of 'path' and if needed its parents
- with the 'mode'. Don't returns error if the directory
- already exists. */
-int fs_mkdir (const char *path, mode_t mode);
+ with the current creation mode. Don't returns error if the
+ directory already exists. SEE: fs_set_mkdir_mode. */
+int fs_mkdir (const char *path);
+
+/* Sete the default mode for creating directories.
+ Returns the previous one. CAUTION: not thread safe. */
+mode_t fs_set_mkdir_mode(mode_t mode);
 
 /* types of entries */
 enum fs_type
