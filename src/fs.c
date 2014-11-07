@@ -22,7 +22,7 @@
 struct explore_dirs
 {
   int wanted;
-  fs_callback callback;
+  enum fs_action (*callback) (const struct fs_entry *);
   struct fs_entry entry;
   char path[PATH_MAX];
 };
@@ -37,7 +37,7 @@ _explore_entry (struct explore_dirs *ed, enum fs_type type)
   switch (type)
     {
     case type_regular:
-      if (!(ed->wanted & wants_others))
+      if (!(ed->wanted & wants_regular))
 	break;
       ed->entry.type = type_regular;
       return ed->callback (&ed->entry);
@@ -64,7 +64,7 @@ _explore_entry (struct explore_dirs *ed, enum fs_type type)
       return ed->callback (&ed->entry);
 
     case type_symlink:
-      if (!(ed->wanted & wants_others))
+      if (!(ed->wanted & wants_symlink))
 	break;
       ed->entry.type = type_symlink;
       return ed->callback (&ed->entry);
@@ -149,6 +149,7 @@ _explore_directory_content (struct explore_dirs *ed)
 
       /* create the entry path */
       memcpy (ed->path + length, ent->d_name, n + 1);
+      ed->entry.length = length + n;
 
       /* inspect the entry type */
 #if defined(_DIRENT_HAVE_D_TYPE)
@@ -189,8 +190,8 @@ _explore_directory_content (struct explore_dirs *ed)
 
 
 int
-fs_explore (const char *directory, int wanted, fs_callback callback,
-	    void *data)
+fs_explore (const char *directory, int wanted,
+	    enum fs_action (*callback) (const struct fs_entry *), void *data)
 {
   struct explore_dirs ed;
 
@@ -200,7 +201,7 @@ fs_explore (const char *directory, int wanted, fs_callback callback,
   ed.entry.base = directory;
   ed.entry.path = ed.path;
   ed.entry.length = (int) strlen (directory);
-  ed.entry.relpath = ed.entry.path + ed.entry.length;
+  ed.entry.relpath = ed.entry.path + ed.entry.length + 1;
 
   /* check length */
   if (ed.entry.length >= PATH_MAX)
@@ -236,13 +237,14 @@ fs_remove_directory (const char *path, int force)
 int
 fs_remove_any (const char *path)
 {
-  return unlink (path) || errno != EISDIR
+  return (unlink (path) && errno != EISDIR)
     || fs_remove_directory (path, 1) ? -1 : 0;
 }
 
 int
 fs_copy_file (const char *dest, const char *src, int force)
 {
+  char buffer[16384];
   int fdfrom, fdto, result;
   ssize_t length;
   size_t count;
@@ -254,17 +256,28 @@ fs_copy_file (const char *dest, const char *src, int force)
     {
       if (!fstat (fdfrom, &s))
 	{
-	  fdto = open (src, O_WRONLY | O_TRUNC | O_CREAT, s.st_mode | 0200);
+	  fdto = open (dest, O_WRONLY | O_TRUNC | O_CREAT, s.st_mode | 0200);
 	  if (fdto >= 0)
 	    {
 	      for (;;)
 		{
-		  count = (~(size_t) 0) >> 1;
+		  count = SSIZE_MAX;
 		  if ((off_t) count > s.st_size)
 		    count = (size_t) s.st_size;
+#if !defined(DONT_USE_SENDFILE)
 		  length = sendfile (fdto, fdfrom, NULL, count);
 		  if (length < 0)
 		    break;
+#else
+		  length =
+		    utils_read (fdfrom, buffer,
+				s.st_size >
+				sizeof buffer ? sizeof buffer : s.st_size);
+		  if (length < 0)
+		    break;
+		  if (length != utils_write (fdto, buffer, length))
+		    break;
+#endif
 		  s.st_size -= (off_t) length;
 		  if (s.st_size == 0)
 		    {
@@ -282,32 +295,100 @@ fs_copy_file (const char *dest, const char *src, int force)
   return result;
 }
 
+struct copy_directory
+{
+  int length;
+  char path[PATH_MAX];
+};
+
 static enum fs_action
 _cbfun_copy (const struct fs_entry *entry)
 {
+  struct copy_directory *cd;
+  int length;
+
+  cd = entry->data;
+  length = strlen (entry->relpath);
+  if (cd->length + length >= PATH_MAX)
+    {
+      errno = ENAMETOOLONG;
+      return -1;
+    }
+
+  memcpy (cd->path + cd->length, entry->relpath, length + 1);
   return entry->type == type_regular ?
-    fs_copy_file (entry->relpath, entry->path, 1) : mkdir (entry->relpath,
-							   0700);
+    fs_copy_file (cd->path, entry->path, 1) : mkdir (cd->path, 0700);
 }
 
 int
 fs_copy_directory (const char *dest, const char *src, int force)
 {
-  int result;
-  char savewd[PATH_MAX];
+  int result, length;
+  struct copy_directory cd;
 
-  if (!getcwd (savewd, sizeof savewd))
+  if (fs_mkdir (dest, 0700))
     return -1;
 
-  if (chdir (dest))
-    return -1;
+  length = (int) strlen (dest);
+  if (length >= PATH_MAX)
+    {
+      errno = ENAMETOOLONG;
+      return -1;
+    }
 
-  result =
-    fs_explore (src,
-		wants_regular | wants_directory_pre | wants_error_on_unwanted,
-		_cbfun_copy, NULL);
-  if (chdir (savewd))
-    return -1;
+  memcpy (cd.path, dest, length);
+  cd.path[length++] = '/';
+  cd.length = length;
 
+  return fs_explore (src,
+		     wants_regular | wants_directory_pre |
+		     wants_error_on_unwanted, _cbfun_copy, &cd);
+}
+
+int
+fs_mkdir (const char *path, mode_t mode)
+{
+  int result, length, iter;
+  char buffer[PATH_MAX];
+  struct stat s;
+
+  result = mkdir (path, mode);
+  if (result && errno == ENOENT)
+    {
+      length = (int) strlen (path);
+      if (length >= PATH_MAX)
+	{
+	  errno = ENAMETOOLONG;
+	  return -1;
+	}
+      memcpy (buffer, path, length + 1);
+      iter = length;
+      do
+	{
+	  while (iter && buffer[--iter] != '/');
+	  while (iter && buffer[iter - 1] == '/')
+	    iter--;
+	  buffer[iter] = 0;
+	  result = mkdir (buffer, mode);
+	}
+      while (result && errno == ENOENT);
+      if (!result)
+	{
+	  do
+	    {
+	      buffer[iter] = '/';
+	      while (++iter < length && buffer[iter]);
+	      result = mkdir (buffer, mode);
+	    }
+	  while (!result && iter < length);
+	}
+    }
+  if (result && errno == EEXIST)
+    {
+      if (stat(path, &s) || !S_ISDIR(s.st_mode))
+        errno = EEXIST;
+      else
+        result = 0;
+    }
   return result;
 }
