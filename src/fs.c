@@ -385,10 +385,10 @@ fs_mkdir (const char *path, mode_t mode)
     }
   if (result && errno == EEXIST)
     {
-      if (stat(path, &s) || !S_ISDIR(s.st_mode))
-        errno = EEXIST;
+      if (stat (path, &s) || !S_ISDIR (s.st_mode))
+	errno = EEXIST;
       else
-        result = 0;
+	result = 0;
     }
   return result;
 }
