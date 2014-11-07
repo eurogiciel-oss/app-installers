@@ -256,7 +256,9 @@ fs_copy_file (const char *dest, const char *src, int force)
     {
       if (!fstat (fdfrom, &s))
 	{
-	  fdto = open (dest, O_WRONLY | O_TRUNC | O_CREAT, s.st_mode | 0200);
+	  fdto =
+	    open (dest, O_WRONLY | O_TRUNC | O_CREAT | (force ? 0 : O_EXCL),
+		  s.st_mode | 0200);
 	  if (fdto >= 0)
 	    {
 	      for (;;)
