@@ -46,6 +46,34 @@ struct app_control
   } capabilities;
 };
 
+struct data_control_type
+{
+  char *access;
+  char *value;
+};
+
+struct data_control
+{
+  char *provider_id;
+  struct
+  {
+    int count;
+    struct data_control_type *types;
+  } types;
+};
+
+struct display_names
+{
+  int count;
+  struct locstr *display_names;
+};
+
+struct icons
+{
+  int count;
+  struct icon *icons;
+};
+
 enum app_type
 { unset_app, ui_app, service_app };
 
@@ -62,16 +90,8 @@ struct app
   char *launch_on_boot;
   char *auto_restart;
   char *use_ui;
-  struct
-  {
-    int count;
-    struct locstr *display_names;
-  } display_names;
-  struct
-  {
-    int count;
-    struct icon *icons;
-  } icons;
+  struct display_names display_names;
+  struct icons icons;
   struct
   {
     int count;
@@ -87,6 +107,33 @@ struct app
     int count;
     struct app_control *app_controls;
   } app_controls;
+
+  struct
+  {
+    char *coordinate_system;
+    char *base_screen_size;
+    char *logical_coordinate;
+  } ui_scalability;
+  struct
+  {
+    char *system_theme;
+    char *user_defined_theme;
+  } ui_theme;
+  struct
+  {
+    char *uuid;
+    struct
+    {
+      int count;
+      char **languages;
+    } languages;
+  } ime;
+
+  struct
+  {
+    int count;
+    struct data_control *data_controls;
+  } data_controls;
 };
 
 struct manifest_tpk

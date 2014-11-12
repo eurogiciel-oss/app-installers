@@ -13,28 +13,38 @@
 
 /* facility macros for handling XML */
 
-#define BEG($name) \
-  static int beg_##$name(struct xml_reader*reader,const char*name,const char**attrs,struct manifest_tpk*manif)
+#define BEG($id) \
+  static int beg_##$id(struct xml_reader*reader,const char*name,const char**attrs,struct manifest_tpk*manif)
 
-#define END($name) \
-  static int end_##$name(struct xml_reader*reader,const char*name,struct manifest_tpk*manif)
+#define END($id) \
+  static int end_##$id(struct xml_reader*reader,const char*name,struct manifest_tpk*manif)
 
-#define CHA($name) \
-  static int cha_##$name(struct xml_reader*reader,const char*ch,int len,struct manifest_tpk*manif)
+#define CHA($id) \
+  static int cha_##$id(struct xml_reader*reader,const char*ch,int len,struct manifest_tpk*manif)
 
-#define XRE($name,$begin,$end,$characters) \
-  static DECL_XML_READ_ELEM(xre_##$name,#$name,$begin,$end,$characters)
+#define _XRE($id,$tag,$begin,$end,$characters) \
+  static DECL_XML_READ_ELEM(xre_##$id,#$tag,$begin,$end,$characters)
 
-#define XRE_B($name) BEG($name); XRE($name,beg_##$name,0,0)
-#define XRE_E($name) END($name); XRE($name,0,end_##$name,0)
-#define XRE_C($name) CHA($name); XRE($name,0,0,cha_##$name)
-#define XRE_BE($name) BEG($name); END($name); XRE($name,beg_##$name,end_##$name,0)
-#define XRE_BC($name) BEG($name); CHA($name); XRE($name,beg_##$name,0,cha_##$name)
-#define XRE_EC($name) END($name); CHA($name); XRE($name,0,end_##$name,cha_##$name)
-#define XRE_BEC($name) BEG($name); END($name); CHA($name); XRE($name,beg_##$name,end_##$name,cha_##$name)
+#define _XRE_B($id,$tag) BEG($id); XRE($id,$tag,beg_##$id,0,0)
+#define _XRE_E($id,$tag) END($id); XRE($id,$tag,0,end_##$id,0)
+#define _XRE_C($id,$tag) CHA($id); XRE($id,$tag,0,0,cha_##$id)
+#define _XRE_BE($id,$tag) BEG($id); END($id); XRE($id,$tag,beg_##$id,end_##$id,0)
+#define _XRE_BC($id,$tag) BEG($id); CHA($id); XRE($id,$tag,beg_##$id,0,cha_##$id)
+#define _XRE_EC($id,$tag) END($id); CHA($id); XRE($id,$tag,0,end_##$id,cha_##$id)
+#define _XRE_BEC($id,$tag) BEG($id); END($id); CHA($id); XRE($id,$tag,beg_##$id,end_##$id,cha_##$id)
+
+#define XRE($id,$begin,$end,$characters) _XRE($id,$id,$begin,$end,$characters)
+
+#define XRE_B($id) BEG($id); XRE($id,beg_##$id,0,0)
+#define XRE_E($id) END($id); XRE($id,0,end_##$id,0)
+#define XRE_C($id) CHA($id); XRE($id,0,0,cha_##$id)
+#define XRE_BE($id) BEG($id); END($id); XRE($id,beg_##$id,end_##$id,0)
+#define XRE_BC($id) BEG($id); CHA($id); XRE($id,beg_##$id,0,cha_##$id)
+#define XRE_EC($id) END($id); CHA($id); XRE($id,0,end_##$id,cha_##$id)
+#define XRE_BEC($id) BEG($id); END($id); CHA($id); XRE($id,beg_##$id,end_##$id,cha_##$id)
 
 END (simple_pop);
-#define XRE_B_($name) BEG($name); XRE($name,beg_##$name,end_simple_pop,0)
+#define XRE_B_($id) BEG($id); XRE($id,beg_##$id,end_simple_pop,0)
 
 /*------------------------------------------------------------------------------------------------------------
 SEE
@@ -112,12 +122,6 @@ https://developer.tizen.org/dev-guide/2.2.1/org.tizen.native.appprogramming/html
 `-<Apps>
   |-<UiApp>
 
-  | |-<UiScalability>
-  | |-<UiTheme>
-  | |-<Ime>
-  | | |-<Uuid>
-  | | `-<Languages>
-  | |   `-<Language>
   | `-<Accounts>
   |   `-<AccountProvider>
   |     |-<Icons>
@@ -128,9 +132,6 @@ https://developer.tizen.org/dev-guide/2.2.1/org.tizen.native.appprogramming/html
   |       `-<Capability>
   `-<ServiceApp>
 
-    |-<DataControls>
-    | `-<DataControl>
-    |   `-<DataControlType>
     |-<AppWidgets>
       `-<AppWidget>
         |-<DisplayNames>
@@ -175,11 +176,20 @@ XRE_B_ (Capability);
 XRE_B (Resolution);
 
 XRE_B_ (UiApp);
+
 XRE_B_ (ServiceApp);
 
-/*
-XRE_BE (DataControls);
-*/
+XRE_B_ (DataControls);
+XRE_B_ (DataControl);
+XRE_BC (DataControlType);
+
+XRE_B (UiScalability);
+XRE_B (UiTheme);
+
+XRE_B_ (Ime);
+XRE_C (Uuid);
+XRE_B_ (Languages);
+XRE_C (Language);
 
 static DECL_XML_READ_ELEM (xre_any_ok, "", 0, 0, 0);
 
@@ -243,6 +253,26 @@ manifest_tpk_dump (struct manifest_tpk *manif)
 	      nn (manif->apps.apps[i].name));
       printf ("      name...................... %s\n",
 	      nn (manif->apps.apps[i].name));
+
+      printf ("      coordinate system......... %s\n",
+	      nn (manif->apps.apps[i].ui_scalability.coordinate_system));
+      printf ("      base screen size.......... %s\n",
+	      nn (manif->apps.apps[i].ui_scalability.base_screen_size));
+      printf ("      logical coordinate........ %s\n",
+	      nn (manif->apps.apps[i].ui_scalability.logical_coordinate));
+
+      printf ("      system theme.............. %s\n",
+	      nn (manif->apps.apps[i].ui_theme.system_theme));
+      printf ("      user defined theme........ %s\n",
+	      nn (manif->apps.apps[i].ui_theme.user_defined_theme));
+
+      printf ("      ime uuid.................. %s\n",
+	      nn (manif->apps.apps[i].ime.uuid));
+      printf ("      ime languages.............");
+      for (j = 0; j < manif->apps.apps[i].ime.languages.count; j++)
+	printf (" %s", nn (manif->apps.apps[i].ime.languages.languages[j]));
+      printf ("\n");
+
       printf ("      display names:\n");
       for (j = 0; j < manif->apps.apps[i].display_names.count; j++)
 	printf ("        (%s) %s\n",
@@ -291,6 +321,24 @@ manifest_tpk_dump (struct manifest_tpk *manif)
 			nn (manif->apps.apps[i].app_controls.app_controls[j].
 			    capabilities.capabilities[k].resolutions.
 			    resolutions[l].uri_scheme));
+
+	    }
+	}
+      for (j = 0; j < manif->apps.apps[i].data_controls.count; j++)
+	{
+	  printf ("      data-controls %d: %s\n", j,
+		  nn (manif->apps.apps[i].data_controls.data_controls[j].
+		      provider_id));
+	  for (k = 0;
+	       k <
+	       manif->apps.apps[i].data_controls.data_controls[j].types.count;
+	       k++)
+	    {
+	      printf ("        (mime) %s (scheme) %s\n",
+		      nn (manif->apps.apps[i].data_controls.data_controls[j].
+			  types.types[k].access),
+		      nn (manif->apps.apps[i].data_controls.data_controls[j].
+			  types.types[k].value));
 
 	    }
 	}
@@ -632,7 +680,10 @@ static struct xml_read_elem *children_of_ui_app[] = {
   &xre_AppControls,
   &xre_LaunchConditions,
   &xre_Notifications,
-  &xre_any_ok			/* UiScalability, UiTheme, Ime, Accounts */
+  &xre_UiScalability,
+  &xre_UiTheme,
+  &xre_Ime,
+  &xre_any_ok			/* Ime, Accounts */
 };
 
 BEG (UiApp)
@@ -672,7 +723,8 @@ static struct xml_read_elem *children_of_service_app[] = {
   &xre_AppControls,
   &xre_LaunchConditions,
   &xre_Notifications,
-  &xre_any_ok			/* DataControls, AppWidgets */
+  &xre_DataControls,
+  &xre_any_ok			/* AppWidgets */
 };
 
 BEG (ServiceApp)
@@ -1011,6 +1063,199 @@ BEG (Resolution)
   return 0;
 }
 
+/*================ Handling DataControls =====================*/
+
+static struct xml_read_elem *children_of_data_controls[] = {
+  &xre_DataControl
+};
+
+static struct xml_read_elem *children_of_data_control[] = {
+  &xre_DataControlType
+};
+
+BEG (DataControls)
+{
+  return xml_read_accept_push (reader, children_of_data_controls,
+			       sizeof children_of_data_controls /
+			       sizeof *children_of_data_controls);
+}
+
+BEG (DataControl)
+{
+  struct app *app;
+  int count;
+  struct data_control *data_controls;
+
+  assert (manif->apps.count > 0);
+  app = &manif->apps.apps[manif->apps.count - 1];
+  count = app->data_controls.count;
+  data_controls = app->data_controls.data_controls;
+  data_controls =
+    realloc (data_controls, (1 + count) * sizeof *data_controls);
+  if (data_controls == NULL)
+    return fail_out_of_memory ();
+
+  memset (data_controls + count, 0, sizeof *data_controls);
+  app->data_controls.data_controls = data_controls;
+  app->data_controls.count = 1 + count;
+
+  if (set_optional_attribute (reader, name, attrs, manif,
+			      &data_controls[count].provider_id,
+			      "ProviderId"))
+    return -1;
+
+  return xml_read_accept_push (reader, children_of_data_control,
+			       sizeof children_of_data_control /
+			       sizeof *children_of_data_control);
+}
+
+BEG (DataControlType)
+{
+  struct app *app;
+  struct data_control *data_control;
+  struct data_control_type *types;
+  int count;
+
+  assert (manif->apps.count > 0);
+  app = &manif->apps.apps[manif->apps.count - 1];
+  assert (app->data_controls.count > 0);
+  data_control =
+    &app->data_controls.data_controls[app->data_controls.count - 1];
+
+  count = data_control->types.count;
+  types = data_control->types.types;
+  types = realloc (types, (1 + count) * sizeof *types);
+  if (types == NULL)
+    return fail_out_of_memory ();
+
+  memset (types + count, 0, sizeof *types);
+  data_control->types.types = types;
+  data_control->types.count = 1 + count;
+
+  return set_optional_attribute (reader, name, attrs, manif,
+				 &types[count].access, "Access");
+}
+
+CHA (DataControlType)
+{
+  struct app *app;
+  struct data_control *data_control;
+
+  assert (manif->apps.count > 0);
+  app = &manif->apps.apps[manif->apps.count - 1];
+  assert (app->data_controls.count > 0);
+  data_control =
+    &app->data_controls.data_controls[app->data_controls.count - 1];
+  assert (data_control->types.count > 0);
+
+  return set_simple_string_once (reader, ch, len, manif,
+				 &data_control->types.
+				 types[data_control->types.count - 1].value,
+				 "DataControlType");
+}
+
+/*================ Handling UiScalability and UiTheme =====================*/
+
+BEG (UiScalability)
+{
+  struct app *app;
+
+  assert (manif->apps.count > 0);
+  app = &manif->apps.apps[manif->apps.count - 1];
+
+  if (set_optional_attribute
+      (reader, name, attrs, manif, &app->ui_scalability.coordinate_system,
+       "CoordinateSystem")
+      || set_optional_attribute (reader, name, attrs, manif,
+				 &app->ui_scalability.base_screen_size,
+				 "BaseScreenSize")
+      || set_optional_attribute (reader, name, attrs, manif,
+				 &app->ui_scalability.logical_coordinate,
+				 "LogicalCoordinate"))
+    return -1;
+
+  return 0;
+}
+
+BEG (UiTheme)
+{
+  struct app *app;
+
+  assert (manif->apps.count > 0);
+  app = &manif->apps.apps[manif->apps.count - 1];
+
+  if (set_optional_attribute
+      (reader, name, attrs, manif, &app->ui_theme.system_theme, "SystemTheme")
+      || set_optional_attribute (reader, name, attrs, manif,
+				 &app->ui_theme.user_defined_theme,
+				 "UserDefinedTheme"))
+    return -1;
+
+  return 0;
+}
+
+/*================ Handling Ime =====================*/
+
+static struct xml_read_elem *children_of_ime[] = {
+  &xre_Uuid,
+  &xre_Languages
+};
+
+static struct xml_read_elem *children_of_languages[] = {
+  &xre_Language
+};
+
+BEG (Ime)
+{
+  return xml_read_accept_push (reader, children_of_ime,
+			       sizeof children_of_ime /
+			       sizeof *children_of_ime);
+}
+
+BEG (Languages)
+{
+  return xml_read_accept_push (reader, children_of_languages,
+			       sizeof children_of_languages /
+			       sizeof *children_of_languages);
+}
+
+CHA (Uuid)
+{
+  struct app *app;
+
+  assert (manif->apps.count > 0);
+  app = &manif->apps.apps[manif->apps.count - 1];
+  return set_simple_string_once (reader, ch, len, manif,
+				 &app->ime.uuid, "Uuid");
+}
+
+CHA (Language)
+{
+  struct app *app;
+  int count;
+  char **languages;
+
+  assert (manif->apps.count > 0);
+  app = &manif->apps.apps[manif->apps.count - 1];
+  count = app->ime.languages.count;
+  languages = app->ime.languages.languages;
+  languages = realloc (languages, (1 + count) * sizeof *languages);
+  if (languages == NULL)
+    return fail_out_of_memory ();
+  app->ime.languages.count = count + 1;
+  app->ime.languages.languages = languages;
+  languages[count] = NULL;
+  return set_simple_string_once (reader, ch, len, manif,
+				 &languages[count], "Language");
+}
+
+/*================ Handling Accounts =====================*/
+
+
+
+
+/*================ Handling ? =====================*/
+/*================ Handling ? =====================*/
 /*================ Handling ? =====================*/
 /*================ Handling ? =====================*/
 /*================ Handling ? =====================*/
