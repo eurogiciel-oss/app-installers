@@ -21,6 +21,7 @@ BuildRequires:  pkgconfig(cert-svc)
 BuildRequires:  pkgconfig(cert-svc-vcore)
 BuildRequires:  pkgconfig(appcore-common)
 BuildRequires:  pkgconfig(vconf)
+BuildRequires:  pkgconfig(libxml-2.0)
 
 Requires(post): privilege-checker
 

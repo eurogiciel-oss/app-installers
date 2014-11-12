@@ -246,7 +246,9 @@ fs_remove_any (const char *path)
 int
 fs_copy_file (const char *dest, const char *src, int force)
 {
+#if defined(DONT_USE_SENDFILE)
   char buffer[16384];
+#endif
   int fdfrom, fdto, result;
   ssize_t length;
   size_t count;
@@ -327,7 +329,7 @@ _cbfun_copy (const struct fs_entry *entry)
 int
 fs_copy_directory (const char *dest, const char *src, int force)
 {
-  int result, length;
+  int length;
   struct copy_directory cd;
 
   if (fs_mkdir (dest))
@@ -397,7 +399,8 @@ fs_mkdir (const char *path)
   return result;
 }
 
-mode_t fs_set_mkdir_mode(mode_t mode)
+mode_t
+fs_set_mkdir_mode (mode_t mode)
 {
   mode_t result;
 
@@ -405,4 +408,3 @@ mode_t fs_set_mkdir_mode(mode_t mode)
   _dirmode = mode;
   return result;
 }
-

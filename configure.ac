@@ -33,7 +33,7 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([memset mkdir realpath rmdir strcasecmp strdup strerror strncasecmp strrchr])
 
-PKG_CHECK_MODULES([EXTDEPS], [pkgmgr pkgmgr-parser pkgmgr-info pkgmgr-installer])
+PKG_CHECK_MODULES([EXTDEPS], [pkgmgr pkgmgr-parser pkgmgr-info pkgmgr-installer libxml-2.0])
 
 AC_CONFIG_FILES([
 Makefile

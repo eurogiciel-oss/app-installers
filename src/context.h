@@ -2,6 +2,8 @@
 
 #pragma once
 
+struct tpk_manifest;
+
 struct context
 {
   /* id of the package to install */
@@ -18,6 +20,9 @@ struct context
 
   /* path of the original package for drm step */
   char *package_path_drm_save;
+
+  /* the tpk manifest */
+  struct manifest_tpk *tpk_manifest;
 
 #if 0
   DrmLicense *__pDrmLicense;
@@ -45,8 +50,6 @@ struct context
   int __apiVisibility;
   void *__pApp2ExtHandle;
 
-  struct json_object *privileges;
-  struct json_object *content;
     Tizen::Base::Collection::ArrayList * __pPrivilegeList;
     Tizen::Base::Collection::ArrayList * __pStringPrivilegeList;
     Tizen::Base::Collection::ArrayList * __pContentDataList;

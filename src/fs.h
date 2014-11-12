@@ -32,7 +32,7 @@ int fs_mkdir (const char *path);
 
 /* Sete the default mode for creating directories.
  Returns the previous one. CAUTION: not thread safe. */
-mode_t fs_set_mkdir_mode(mode_t mode);
+mode_t fs_set_mkdir_mode (mode_t mode);
 
 /* types of entries */
 enum fs_type

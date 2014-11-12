@@ -27,3 +27,9 @@ fail (int err, const char *format, ...)
 
   return result;
 }
+
+int
+fail_out_of_memory ()
+{
+  return fail (ENOMEM, "out of memory");
+}

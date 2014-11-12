@@ -2,4 +2,4 @@
 #pragma once
 
 struct step;
-extern struct step step_manifest;
+extern struct step step_manifest_tpk;

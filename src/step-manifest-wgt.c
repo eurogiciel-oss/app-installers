@@ -9,7 +9,7 @@
 
 #include "context.h"
 #include "step.h"
-#include "step-manifest.h"
+#include "step-manifest-wgt.h"
 
 static int
 make (struct context *context)
@@ -24,4 +24,4 @@ unmake (struct context *context)
 }
 
 
-struct step step_manifest = {.make = make,.unmake = unmake,.clean = 0 };
+struct step step_manifest_wgt = {.make = make,.unmake = unmake,.clean = 0 };

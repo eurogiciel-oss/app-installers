@@ -14,7 +14,7 @@
 
 
 static const char *list[] = {
-  "info/manifest.xml"
+  "/info/manifest.xml"
 };
 
 
@@ -31,7 +31,6 @@ make (struct context *context)
     return fail (ENAMETOOLONG, "Name too long %s", context->unpack_directory);
 
   memcpy (buffer, context->unpack_directory, len);
-  buffer[len++] = '/';
 
   idx = 0;
   while (idx < sizeof list / sizeof *list)

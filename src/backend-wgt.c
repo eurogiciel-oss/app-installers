@@ -18,6 +18,7 @@
 #include "step-unpack.h"
 #include "step-check-signature.h"
 #include "step-check-wgt.h"
+#include "step-manifest-wgt.h"
 
 static pkgmgr_installer *pi = 0;
 static struct options options;
@@ -27,6 +28,7 @@ static struct step *install_steps[] = {
   &step_unpack,
   &step_check_signature,
   &step_check_wgt,
+  &step_manifest_wgt,
   NULL
 };
 
