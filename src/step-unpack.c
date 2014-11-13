@@ -31,9 +31,7 @@ make (struct context *context)
   id = (int) getpid ();
   for (;;)
     {
-      status =
-	asprintf (&name, "/tmp/.app.installers.%s.%d", context->package_id,
-		  id);
+      status = asprintf (&name, "/tmp/.app.installers.%s.%d", context->package_id, id);
       if (status < 0)
 	return fail (ENOMEM, NULL);
       status = mkdir (name, 0700);
@@ -47,8 +45,7 @@ make (struct context *context)
       if (errno != EEXIST)
 	return fail (errno, "Can't create temporary directory: %m");
       if (++nr >= MAX_TRIAL_COUNT)
-	return fail (EEXIST,
-		     "Can't create temporary directory: maximum trial count reached");
+	return fail (EEXIST, "Can't create temporary directory: maximum trial count reached");
       id++;
     }
 }

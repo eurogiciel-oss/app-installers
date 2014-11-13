@@ -38,8 +38,7 @@ make (struct context *context)
     {
       n = 1 + (int) strlen (list[idx]);
       if (len + n > PATH_MAX)
-	return fail (ENAMETOOLONG, "Name too long %s/%s",
-		     context->unpack_directory, list[idx]);
+	return fail (ENAMETOOLONG, "Name too long %s/%s", context->unpack_directory, list[idx]);
       memcpy (buffer + len, list[idx], n);
       if (access (buffer, F_OK))
 	return fail (ENOENT, "File not found %s", buffer);

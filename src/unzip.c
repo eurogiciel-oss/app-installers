@@ -16,8 +16,7 @@ unzip (const char *targetdir, const char *zipfile)
   char *command;
 
   /* prepare the command */
-  status =
-    asprintf (&command, "unzip -n -qq -d '%s' '%s'", targetdir, zipfile);
+  status = asprintf (&command, "unzip -n -qq -d '%s' '%s'", targetdir, zipfile);
   if (status < 0)
     return fail (ENOMEM, NULL);
 
@@ -41,7 +40,6 @@ unzip (const char *targetdir, const char *zipfile)
     case 9:
       return fail (ENOENT, "File to unzip doesn't exist: %s", zipfile);
     default:
-      return fail (ECANCELED, "Error while unziping %s to %s", zipfile,
-		   targetdir);
+      return fail (ECANCELED, "Error while unziping %s to %s", zipfile, targetdir);
     }
 }

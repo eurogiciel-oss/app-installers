@@ -54,8 +54,7 @@ init ()
   if (is_drm_file != NULL && decrypt_package != NULL)
     return 0;
   syslog (LOG_ERR, "Symbol(s) not found%s%s",
-	  is_drm_file == NULL ? name_is_drm_file : "",
-	  decrypt_package == NULL ? name_decrypt_package : "");
+	  is_drm_file == NULL ? name_is_drm_file : "", decrypt_package == NULL ? name_decrypt_package : "");
   uninit ();
   errno = ECANCELED;
   return -1;

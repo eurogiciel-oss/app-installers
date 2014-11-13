@@ -26,8 +26,7 @@ make (struct context *context)
   /* check length */
   length = strlen (context->unpack_directory);
   if (length + sizeof manifest_sub_path > sizeof buffer)
-    return fail (ENAMETOOLONG, "path too long %s%s",
-		 context->unpack_directory, manifest_sub_path);
+    return fail (ENAMETOOLONG, "path too long %s%s", context->unpack_directory, manifest_sub_path);
 
   /* path of the manifest file */
   memcpy (buffer, context->unpack_directory, length);

@@ -47,8 +47,7 @@ struct xml_reader
 static int
 cmpsort (const void *a, const void *b)
 {
-  return cmp ((*(const struct xml_read_elem **) a)->name,
-	      (*(const struct xml_read_elem **) b)->name);
+  return cmp ((*(const struct xml_read_elem **) a)->name, (*(const struct xml_read_elem **) b)->name);
 }
 
 /* searching callback (searching an element) */
@@ -76,8 +75,7 @@ reader_characters (struct xml_reader *reader, const char *ch, int len)
 }
 
 static void
-reader_start_element (struct xml_reader *reader, const char *name,
-		      const char **attrs)
+reader_start_element (struct xml_reader *reader, const char *name, const char **attrs)
 {
   struct xml_read_elem *elem, **found;
 
@@ -101,8 +99,7 @@ reader_start_element (struct xml_reader *reader, const char *name,
   assert (*found != NULL);
 
   /* pushs the elements path */
-  if (reader->path.count ==
-      sizeof reader->path.path / sizeof *reader->path.path)
+  if (reader->path.count == sizeof reader->path.path / sizeof *reader->path.path)
     {
       reader->err = E2BIG;
       return;
@@ -139,8 +136,7 @@ reader_end_element (struct xml_reader *reader, const char *name)
 
 /* initialisation of the reader */
 static void
-reader_init (struct xml_reader *reader, struct xml_read_elem **roots,
-	     int nroots, void *data)
+reader_init (struct xml_reader *reader, struct xml_read_elem **roots, int nroots, void *data)
 {
   reader->err = 0;
   reader->data = data;
@@ -157,8 +153,7 @@ int
 xml_read_accept_add (struct xml_reader *reader, struct xml_read_elem *elem)
 {
   /* check not full */
-  if (reader->accept.base + reader->accept.count >=
-      (sizeof reader->accept.stack / sizeof *reader->accept.stack))
+  if (reader->accept.base + reader->accept.count >= (sizeof reader->accept.stack / sizeof *reader->accept.stack))
     {
       errno = E2BIG;
       return -1;
@@ -166,8 +161,7 @@ xml_read_accept_add (struct xml_reader *reader, struct xml_read_elem *elem)
 
   /* add and sort */
   reader->accept.elems[reader->accept.base + reader->accept.count++] = elem;
-  qsort (&reader->accept.elems[reader->accept.base], reader->accept.count,
-	 sizeof *reader->accept.elems, cmpsort);
+  qsort (&reader->accept.elems[reader->accept.base], reader->accept.count, sizeof *reader->accept.elems, cmpsort);
 
   return 0;
 }
@@ -200,8 +194,7 @@ xml_read_accept_drop (struct xml_reader *reader, struct xml_read_elem *elem)
 }
 
 int
-xml_read_accept_set (struct xml_reader *reader, struct xml_read_elem **elems,
-		     int nelems)
+xml_read_accept_set (struct xml_reader *reader, struct xml_read_elem **elems, int nelems)
 {
   /* check args */
   if (nelems < 0)
@@ -211,19 +204,16 @@ xml_read_accept_set (struct xml_reader *reader, struct xml_read_elem **elems,
     }
 
   /* check enough space */
-  if (reader->accept.base + nelems >
-      (sizeof reader->accept.stack / sizeof *reader->accept.stack))
+  if (reader->accept.base + nelems > (sizeof reader->accept.stack / sizeof *reader->accept.stack))
     {
       errno = E2BIG;
       return -1;
     }
 
   /* set and sort */
-  memcpy (&reader->accept.elems[reader->accept.base], elems,
-	  nelems * sizeof *reader->accept.elems);
+  memcpy (&reader->accept.elems[reader->accept.base], elems, nelems * sizeof *reader->accept.elems);
   reader->accept.count = nelems;
-  qsort (&reader->accept.elems[reader->accept.base], reader->accept.count,
-	 sizeof *reader->accept.elems, cmpsort);
+  qsort (&reader->accept.elems[reader->accept.base], reader->accept.count, sizeof *reader->accept.elems, cmpsort);
 
   return 0;
 }
@@ -232,8 +222,7 @@ int
 xml_read_accept_push_nothing (struct xml_reader *reader)
 {
   /* check enough space */
-  if (reader->accept.pushed ==
-      (sizeof reader->accept.stack / sizeof *reader->accept.stack))
+  if (reader->accept.pushed == (sizeof reader->accept.stack / sizeof *reader->accept.stack))
     {
       errno = E2BIG;
       return -1;
@@ -248,8 +237,7 @@ xml_read_accept_push_nothing (struct xml_reader *reader)
 }
 
 int
-xml_read_accept_push (struct xml_reader *reader, struct xml_read_elem **elems,
-		      int nelems)
+xml_read_accept_push (struct xml_reader *reader, struct xml_read_elem **elems, int nelems)
 {
   if (xml_read_accept_push_nothing (reader))
     return -1;
@@ -268,8 +256,7 @@ xml_read_accept_pop (struct xml_reader *reader)
 
   /* restore the saved accepting set */
   assert (reader->accept.stack[reader->accept.pushed - 1] >= 0);
-  assert (reader->accept.base -
-	  reader->accept.stack[reader->accept.pushed - 1] >= 0);
+  assert (reader->accept.base - reader->accept.stack[reader->accept.pushed - 1] >= 0);
   reader->accept.count = reader->accept.stack[--reader->accept.pushed];
   reader->accept.base -= reader->accept.count;
   return 0;
@@ -305,8 +292,7 @@ xml_read_attribute_copy (const char **attrs, const char *name, char **copy)
 }
 
 int
-xml_read_file (const char *path, struct xml_read_elem **roots, int nroots,
-	       void *data)
+xml_read_file (const char *path, struct xml_read_elem **roots, int nroots, void *data)
 {
   int status;
   struct xml_reader reader;

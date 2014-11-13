@@ -55,13 +55,9 @@ enum fs_wants
   wants_error_on_unwanted = 32,	/* raise an error on unwanted entries (set errno=ECANCELED) */
 
   /* some common combinations */
-  wants_all =
-    wants_regular | wants_symlink | wants_others | wants_directory_pre |
-    wants_directory_post,
-  wants_any_pre =
-    wants_regular | wants_symlink | wants_others | wants_directory_pre,
-  wants_any_post =
-    wants_regular | wants_symlink | wants_others | wants_directory_post
+  wants_all = wants_regular | wants_symlink | wants_others | wants_directory_pre | wants_directory_post,
+  wants_any_pre = wants_regular | wants_symlink | wants_others | wants_directory_pre,
+  wants_any_post = wants_regular | wants_symlink | wants_others | wants_directory_post
 };
 
 /* type of action to perform after exploring an entry */
@@ -87,5 +83,4 @@ struct fs_entry
 };
 
 int fs_explore (const char *directory, int wanted,
-		enum fs_action (*callback) (const struct fs_entry * entry),
-		void *data);
+		enum fs_action (*callback) (const struct fs_entry * entry), void *data);

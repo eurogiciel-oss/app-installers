@@ -26,8 +26,7 @@ char *files[] = {
 enum fs_action
 px (const struct fs_entry *entry)
 {
-  printf ("entry [%d] %s %s %s %s \n", entry->type, entry->path,
-	  entry->relpath, entry->name, entry->base);
+  printf ("entry [%d] %s %s %s %s \n", entry->type, entry->path, entry->relpath, entry->name, entry->base);
   return 0;
 }
 

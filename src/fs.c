@@ -166,8 +166,7 @@ _explore_directory_content (struct explore_dirs *ed)
 #endif
       action = _explore_entry (ed,
 			       IS_A_ (REG) ? type_regular : IS_A_ (DIR) ?
-			       type_directory_pre : IS_A_ (LNK) ? type_symlink
-			       : type_others);
+			       type_directory_pre : IS_A_ (LNK) ? type_symlink : type_others);
 #undef IS_A_
 
       /* inspect action */
@@ -192,8 +191,7 @@ _explore_directory_content (struct explore_dirs *ed)
 
 
 int
-fs_explore (const char *directory, int wanted,
-	    enum fs_action (*callback) (const struct fs_entry *), void *data)
+fs_explore (const char *directory, int wanted, enum fs_action (*callback) (const struct fs_entry *), void *data)
 {
   struct explore_dirs ed;
 
@@ -239,8 +237,7 @@ fs_remove_directory (const char *path, int force)
 int
 fs_remove_any (const char *path)
 {
-  return (unlink (path) && errno != EISDIR)
-    || fs_remove_directory (path, 1) ? -1 : 0;
+  return (unlink (path) && errno != EISDIR) || fs_remove_directory (path, 1) ? -1 : 0;
 }
 
 int
@@ -260,9 +257,7 @@ fs_copy_file (const char *dest, const char *src, int force)
     {
       if (!fstat (fdfrom, &s))
 	{
-	  fdto =
-	    open (dest, O_WRONLY | O_TRUNC | O_CREAT | (force ? 0 : O_EXCL),
-		  s.st_mode | 0200);
+	  fdto = open (dest, O_WRONLY | O_TRUNC | O_CREAT | (force ? 0 : O_EXCL), s.st_mode | 0200);
 	  if (fdto >= 0)
 	    {
 	      for (;;)
@@ -275,10 +270,7 @@ fs_copy_file (const char *dest, const char *src, int force)
 		  if (length < 0)
 		    break;
 #else
-		  length =
-		    utils_read (fdfrom, buffer,
-				s.st_size >
-				sizeof buffer ? sizeof buffer : s.st_size);
+		  length = utils_read (fdfrom, buffer, s.st_size > sizeof buffer ? sizeof buffer : s.st_size);
 		  if (length < 0)
 		    break;
 		  if (length != utils_write (fdto, buffer, length))
@@ -322,8 +314,7 @@ _cbfun_copy (const struct fs_entry *entry)
     }
 
   memcpy (cd->path + cd->length, entry->relpath, length + 1);
-  return entry->type == type_regular ?
-    fs_copy_file (cd->path, entry->path, 1) : mkdir (cd->path, _dirmode);
+  return entry->type == type_regular ? fs_copy_file (cd->path, entry->path, 1) : mkdir (cd->path, _dirmode);
 }
 
 int
@@ -346,9 +337,7 @@ fs_copy_directory (const char *dest, const char *src, int force)
   cd.path[length++] = '/';
   cd.length = length;
 
-  return fs_explore (src,
-		     wants_regular | wants_directory_pre |
-		     wants_error_on_unwanted, _cbfun_copy, &cd);
+  return fs_explore (src, wants_regular | wants_directory_pre | wants_error_on_unwanted, _cbfun_copy, &cd);
 }
 
 int

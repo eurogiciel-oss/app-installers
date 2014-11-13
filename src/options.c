@@ -78,8 +78,7 @@ options_parse (struct options *options, const char *string)
 	    }
 	  if (type == no_key)
 	    return myfail (options, EINVAL,
-			   "Error while parsing option string: invalid key %.*s",
-			   (int) (value - head) - 1, head);
+			   "Error while parsing option string: invalid key %.*s", (int) (value - head) - 1, head);
 	}
       else
 	{
@@ -88,22 +87,18 @@ options_parse (struct options *options, const char *string)
 	}
 
       if ((mask & (1 << type)) != 0)
-	return myfail (options, EINVAL,
-		       "Error while parsing option string: duplication of a key");
+	return myfail (options, EINVAL, "Error while parsing option string: duplication of a key");
 
       length = (int) (iter - value);
       if (type == key_removable)
 	{
-	  if ((length == 1 && *value == '0')
-	      || (length == 5 && !strncasecmp (head, "false", 5)))
+	  if ((length == 1 && *value == '0') || (length == 5 && !strncasecmp (head, "false", 5)))
 	    options->removable = 0;
-	  else if ((length == 1 && *value == '1')
-		   || (length == 4 && !strncasecmp (head, "true", 5)))
+	  else if ((length == 1 && *value == '1') || (length == 4 && !strncasecmp (head, "true", 5)))
 	    options->removable = 1;
 	  else
 	    return myfail (options, EINVAL,
-			   "Error while parsing option string: wrong boolean value %.*s",
-			   length, value);
+			   "Error while parsing option string: wrong boolean value %.*s", length, value);
 	}
       else
 	{

@@ -1,4 +1,4 @@
 #!/bin/sh
 
-indent *.c *.h
+indent -l120 *.c *.h
 rm *~
