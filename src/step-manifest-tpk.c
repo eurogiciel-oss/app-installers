@@ -18,7 +18,7 @@ const char manifest_sub_path[] = "/info/manifest.xml";
 
 
 static int
-make (struct context *context)
+process (struct context *context)
 {
   size_t length;
   char buffer[PATH_MAX];
@@ -37,9 +37,9 @@ make (struct context *context)
 }
 
 static int
-unmake (struct context *context)
+undo (struct context *context)
 {
   return 0;
 }
 
-struct step step_manifest_tpk = {.make = make,.unmake = unmake,.clean = 0 };
+struct step step_manifest_tpk = {.process = process,.undo = undo,.clean = 0 };

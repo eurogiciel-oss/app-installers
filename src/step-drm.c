@@ -16,7 +16,7 @@
 
 #if !defined(DONT_DISABLE_LEGACY_DRM_OEM)
 
-struct step step_drm = {.make = 0,.unmake = 0,.clean = 0 };
+struct step step_drm = {.process = 0,.undo = 0,.clean = 0 };
 
 #else
 
@@ -78,7 +78,7 @@ clean (struct context *context)
 }
 
 static int
-make (struct context *context)
+process (struct context *context)
 {
   int len;
   char *decrypted, *original;
@@ -119,6 +119,6 @@ make (struct context *context)
   return 0;
 }
 
-struct step step_drm = {.make = make,.unmake = clean,.clean = clean };
+struct step step_drm = {.process = process,.undo = clean,.clean = clean };
 
 #endif

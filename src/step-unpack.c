@@ -18,7 +18,7 @@
 #define MAX_TRIAL_COUNT  5
 
 static int
-make (struct context *context)
+process (struct context *context)
 {
   char *name;
   int id, status, nr;
@@ -69,4 +69,4 @@ clean (struct context *context)
 }
 
 
-struct step step_unpack = {.make = make,.unmake = clean,.clean = clean };
+struct step step_unpack = {.process = process,.undo = clean,.clean = clean };

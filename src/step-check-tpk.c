@@ -19,7 +19,7 @@ static const char *list[] = {
 
 
 static int
-make (struct context *context)
+process (struct context *context)
 {
   char buffer[PATH_MAX];
   int len, n, idx;
@@ -47,4 +47,4 @@ make (struct context *context)
   return 0;
 }
 
-struct step step_check_tpk = {.make = make,.unmake = 0,.clean = 0 };
+struct step step_check_tpk = {.process = process,.undo = 0,.clean = 0 };

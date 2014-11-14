@@ -16,28 +16,28 @@ struct context;
   meaningful value.
 
   The functions are:
-    - make     make the installation step
-    - unmake   revert the installation step
-    - clean    remove any temporary data
+    - process  process the installation step
+    - undo     undo the installation step after failure
+    - clean    remove temporary data of the step after success
 */
 struct step
 {
-  int (*make) (struct context *);
-  int (*unmake) (struct context *);
+  int (*process) (struct context *);
+  int (*undo) (struct context *);
   int (*clean) (struct context *);
 };
 
 /*
- Run the given 'steps' by calling the callback functions "make" of
+ Run the given 'steps' by calling the callback functions "process" of
  the steps with 'context' in order until the end (indicated
- by a NULL step pointer) is reached or a callback function "make"
+ by a NULL step pointer) is reached or a callback function "process"
  returned an error.
 
  On success (all steps are made without error), the callback functions
  "clean" of the steps are called in the reverse order and a value of
  0 is returned.
 
- On error, the callback functions "unmake" are called in the reverse
+ On error, the callback functions "undo" are called in the reverse
  order and the original error is returned.
 */
 int step_run (struct step **steps, struct context *context);
