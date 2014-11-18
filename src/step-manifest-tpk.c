@@ -42,4 +42,4 @@ undo (struct context *context)
   return 0;
 }
 
-struct step step_manifest_tpk = {.process = process,.undo = undo,.clean = 0 };
+struct step step_manifest_tpk = {.process = process,.undo = undo,.clean = 0, .data = &context };

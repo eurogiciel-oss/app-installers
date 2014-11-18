@@ -49,4 +49,4 @@ process (struct context *context)
   return 0;
 }
 
-struct step step_check_signature = {.process = make,.undo = 0,.clean = 0 };
+struct step step_check_signature = {.process = make,.undo = 0,.clean = 0,.data = &context };

@@ -87,3 +87,6 @@ struct context
   void *__pPkgmgrInstaller;
 #endif
 };
+
+extern struct context context;
+

@@ -44,7 +44,7 @@ struct step
  order, begining from the last processed step (that failed), and
  the original error is returned.
 */
-int step_run (struct step **steps, int count);
+int step_run (const struct step * const *steps, int count);
 
 #if !defined(NDEBUG)
 /*

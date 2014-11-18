@@ -22,14 +22,14 @@
 
 static pkgmgr_installer *pi = 0;
 static struct options options;
-static struct context context;
+
+struct context context;
 
 static struct step *install_steps[] = {
   &step_unpack,
   &step_check_signature,
   &step_check_wgt,
-  &step_manifest_wgt,
-  NULL
+  &step_manifest_wgt
 };
 
 
@@ -101,7 +101,7 @@ install ()
     }
 
   /* TODO */
-  status = step_run (install_steps, &context);
+  status = step_run (install_steps, sizeof install_steps / sizeof * install_steps);
 
   return 0;
 }

@@ -47,4 +47,4 @@ process (struct context *context)
   return 0;
 }
 
-struct step step_check_tpk = {.process = process,.undo = 0,.clean = 0 };
+struct step step_check_tpk = {.process = process,.undo = 0,.clean = 0, .data = &context };

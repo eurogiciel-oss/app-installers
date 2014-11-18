@@ -69,4 +69,4 @@ clean (struct context *context)
 }
 
 
-struct step step_unpack = {.process = process,.undo = clean,.clean = clean };
+struct step step_unpack = {.process = process,.undo = clean,.clean = clean, .data = &context };

@@ -23,18 +23,17 @@ private:
 
 public:
 
-	inline operator struct step () const {
-		struct step result;
-		result.process = (int(*)(void*)) _process_;
-		result.undo = (int(*)(void*)) _undo_;
-		result.clean = (int(*)(void*)) _clean_;
-		result.data = (void*) this;
-		return result;
+	inline operator const struct step *() const {
+		asStep.process = (int(*)(void*)) _process_;
+		asStep.undo = (int(*)(void*)) _undo_;
+		asStep.clean = (int(*)(void*)) _clean_;
+		asStep.data = (void*) this;
+		return &asStep;
 	}
 
-	static FailCode run(const std::vector<Step*> &vector);
-
 private:
+
+	mutable struct step asStep;
 	static int _process_(Step *step);
 	static int _undo_(Step *step);
 	static int _clean_(Step *step);

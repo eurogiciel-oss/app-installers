@@ -26,4 +26,4 @@ undo (struct context *context)
 }
 
 
-struct step step_manifest_wgt = {.process = process,.undo = undo,.clean = 0 };
+struct step step_manifest_wgt = {.process = process,.undo = undo,.clean = 0, .data = &context };

@@ -17,7 +17,7 @@ call (int (*function) (data *), void *data)
 }
 
 int
-step_run (struct step **steps, int count)
+step_run (const struct step * const *steps, int count)
 {
   int result, index, saved;
 

@@ -119,6 +119,6 @@ process (struct context *context)
   return 0;
 }
 
-struct step step_drm = {.process = process,.undo = clean,.clean = clean };
+struct step step_drm = {.process = process,.undo = clean,.clean = clean, .data = &context };
 
 #endif

@@ -7,22 +7,6 @@
 
 namespace AppInstaller {
 
-FailCode Step::run(const std::vector<Step*> &vector)
-{
-	struct step *steps, **isteps;
-	int i, count, result;
-
-	count = (int)vector.size();
-	assert(count >= 0);
-	steps = (struct step *)alloca(count * sizeof * steps);
-	isteps = (struct step **)alloca(count * sizeof * isteps);
-	for (i = 0 ; i < count ; i++) {
-		steps[i] = *vector[i];
-		isteps[i] = &steps[i];
-	}
-	return step_run(isteps, count);
-}
-
 int Step::_process_(Step *step)
 {
 	try {
