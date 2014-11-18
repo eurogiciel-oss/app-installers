@@ -25,7 +25,7 @@ static struct options options;
 
 struct context context;
 
-static struct step *install_steps[] = {
+static const struct step *install_steps[] = {
   &step_unpack,
   &step_check_signature,
   &step_check_wgt,

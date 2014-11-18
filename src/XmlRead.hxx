@@ -31,40 +31,54 @@ struct XmlReader {
 	inline XmlReader(struct xml_reader *reader) : xmlReader(reader) {}
 	inline XmlReader(const XmlReader &reader) : xmlReader(reader.xmlReader) {}
 
-	inline FailCode add(XmlReadElem &elem) {
+	inline FailCode add(XmlReadElem &elem) const {
 		return xml_read_accept_add (xmlReader, elem);
 	}
 
-	inline FailCode drop(XmlReadElem &elem) {
+	inline FailCode drop(XmlReadElem &elem) const {
 		return xml_read_accept_drop (xmlReader, elem);
 	}
 
-/* Sets the set of accepted elements to be the 'nelems' elements of 'elems'.
- Returns 0 in case of success or -1 with errno set in case of error. */
-int xml_read_accept_set (struct xml_reader *reader, struct xml_read_elem **elems, int nelems);
+	inline FailCode set(const std::vector<XmlReadElem*> &elems) const {
+		struct xml_read_elem *array[elems.size()];
+		init(roots, array);
+		return xml_read_accept_set(xmlReader, array, elems.size());
+	}
 
-	inline FailCode push() {
+	inline FailCode push() const {
 		return xml_read_accept_push_nothing (xmlReader);
 	}
 
-	inline FailCode push(...) {
-		FailCode code = push();
-		if (code) code = set(elems);
-		return code;
+	inline FailCode push(const std::vector<XmlReadElem*> &elems) const {
+		struct xml_read_elem *array[elems.size()];
+		init(roots, array);
+		return xml_read_accept_push(xmlReader, array, elems.size());
 	}
 
-	inline FailCode pop() {
+	inline FailCode pop() const {
 		return xml_read_accept_pop (xmlReader);
 	}
 
-/* Reads the file of 'path' and parse it. It accepts any of the given
- 'nroots' elements described by 'roots'. 'data' is a user data pointer
- given as is in callbacks. Returns 0 in case of success or -1 with
- errno set in case of error. */
-	FailCode readFile (const std::string &path, xml_read_file (const char *path, struct xml_read_elem **roots, int nroots, void *data);
+	static inline FailCode readFile (const std::string &path, const std::vector<XmlReadElem*> &roots, void * data) {
+		struct xml_read_elem *array[roots.size()];
+		init(roots, array);
+		return xml_read_file (path.c_str(), array, roots.size(), data);
+	}
 
+private:
+	static inline void init(const std::vector<XmlReadElem*> &elems, struct xml_read_elem *array) {
+		for (int i = 0 , n = elems.size() ; i < n ; i++)
+			array[i] = *elems[i];
+	}
 };
 
+class XmlReadElem {
+
+private:
+
+	virtual FailCode begin(XmlReader reader, const char *name, XmlReadAttributes attrs) = 0;
+	virtual FailCode end(XmlReader reader, const char *name) = 0;
+	virtual FailCode characters(XmlReader reader, const char *ch, int len) = 0;
 
 
 /* Private structure for a reader */
