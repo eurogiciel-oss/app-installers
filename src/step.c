@@ -1,5 +1,6 @@
 /* 2014, Copyright © Intel Coporation, license MIT, see COPYING file */
 
+#include <stdlib.h>
 #include <errno.h>
 #include <assert.h>
 
@@ -11,7 +12,7 @@
  Otherwise, call the function with 'data' and propagate its result.
 */
 static int
-call (int (*function) (data *), void *data)
+call (int (*function) (void *), void *data)
 {
   return function ? function (data) : 0;
 }

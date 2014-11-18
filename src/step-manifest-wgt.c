@@ -14,16 +14,16 @@
 #include "step-manifest-wgt.h"
 
 static int
-process (struct context *context)
+process (void * data)
 {
   return 0;
 }
 
 static int
-undo (struct context *context)
+undo (void * data)
 {
   return 0;
 }
 
 
-struct step step_manifest_wgt = {.process = process,.undo = undo,.clean = 0, .data = &context };
+struct step step_manifest_wgt = {.process = process,.undo = undo,.clean = 0, .data = 0 };

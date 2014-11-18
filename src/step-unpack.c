@@ -18,28 +18,28 @@
 #define MAX_TRIAL_COUNT  5
 
 static int
-process (struct context *context)
+process (void * data)
 {
   char *name;
   int id, status, nr;
 
-  assert (context->package_id != NULL);
-  assert (context->package_path != NULL);
-  assert (!access (context->package_path, F_OK));
+  assert (context.package_id != NULL);
+  assert (context.package_path != NULL);
+  assert (!access (context.package_path, F_OK));
 
   nr = 0;
   id = (int) getpid ();
   for (;;)
     {
-      status = asprintf (&name, "/tmp/.app.installers.%s.%d", context->package_id, id);
+      status = asprintf (&name, "/tmp/.app.installers.%s.%d", context.package_id, id);
       if (status < 0)
 	return fail (ENOMEM, NULL);
       status = mkdir (name, 0700);
       if (!status)
 	{
-	  context->unpack_directory = name;
+	  context.unpack_directory = name;
 	  /* TODO: add checks, i.e. not splitted, not crypted */
-	  return unzip (context->unpack_directory, context->package_path);
+	  return unzip (context.unpack_directory, context.package_path);
 	}
       free (name);
       if (errno != EEXIST)
@@ -51,16 +51,16 @@ process (struct context *context)
 }
 
 static int
-clean (struct context *context)
+clean (void * data)
 {
   int status;
 
-  if (context->unpack_directory)
+  if (context.unpack_directory)
     {
-      assert (!access (context->unpack_directory, W_OK));
-      status = fs_remove_directory (context->unpack_directory, 1);
-      free (context->unpack_directory);
-      context->unpack_directory = NULL;
+      assert (!access (context.unpack_directory, W_OK));
+      status = fs_remove_directory (context.unpack_directory, 1);
+      free (context.unpack_directory);
+      context.unpack_directory = NULL;
     }
   else
     status = 0;
@@ -69,4 +69,4 @@ clean (struct context *context)
 }
 
 
-struct step step_unpack = {.process = process,.undo = clean,.clean = clean, .data = &context };
+struct step step_unpack = {.process = process,.undo = clean,.clean = clean, .data = 0 };

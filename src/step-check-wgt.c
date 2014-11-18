@@ -19,18 +19,18 @@ static const char *list[] = {
 
 
 static int
-process (struct context *context)
+process (void * data)
 {
   char buffer[PATH_MAX];
   int len, n, idx;
 
-  assert (context->unpack_directory != NULL);
+  assert (context.unpack_directory != NULL);
 
-  len = (int) strlen (context->unpack_directory);
+  len = (int) strlen (context.unpack_directory);
   if (len + 1 >= PATH_MAX)
-    return fail (ENAMETOOLONG, "Name too long %s", context->unpack_directory);
+    return fail (ENAMETOOLONG, "Name too long %s", context.unpack_directory);
 
-  memcpy (buffer, context->unpack_directory, len);
+  memcpy (buffer, context.unpack_directory, len);
   buffer[len++] = '/';
 
   idx = 0;
@@ -38,7 +38,7 @@ process (struct context *context)
     {
       n = 1 + (int) strlen (list[idx]);
       if (len + n > PATH_MAX)
-	return fail (ENAMETOOLONG, "Name too long %s/%s", context->unpack_directory, list[idx]);
+	return fail (ENAMETOOLONG, "Name too long %s/%s", context.unpack_directory, list[idx]);
       memcpy (buffer + len, list[idx], n);
       if (access (buffer, F_OK))
 	return fail (ENOENT, "File not found %s", buffer);
@@ -48,4 +48,4 @@ process (struct context *context)
   return 0;
 }
 
-struct step step_check_wgt = {.process = process,.undo = 0,.clean = 0, .data = &context };
+struct step step_check_wgt = {.process = process,.undo = 0,.clean = 0, .data = 0 };

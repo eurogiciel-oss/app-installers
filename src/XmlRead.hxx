@@ -7,13 +7,61 @@ extern "C" {
 }
 
 #include <string>
+#include "Fail.hxx"
 
 namespace AppInstaller {
+
+struct XmlReadAttributes {
+	const char *attrs;
+
+	inline XmlReadAttributes(const char *xattrs) : attrs(xattrs) {}
+
+	inline bool has(const std::string &name) {
+		return xml_read_attribute(attrs, name.c_str()) != NULL;
+	}
+	inline std::string &operator[](const std::string &name) {
+		const char *value = xml_read_attribute(attrs, name.c_str());
+		return std::string(value ? value : "");
+	}
+};
 
 struct XmlReader {
 	struct xml_reader *xmlReader;
 
 	inline XmlReader(struct xml_reader *reader) : xmlReader(reader) {}
+	inline XmlReader(const XmlReader &reader) : xmlReader(reader.xmlReader) {}
+
+	inline FailCode add(XmlReadElem &elem) {
+		return xml_read_accept_add (xmlReader, elem);
+	}
+
+	inline FailCode drop(XmlReadElem &elem) {
+		return xml_read_accept_drop (xmlReader, elem);
+	}
+
+/* Sets the set of accepted elements to be the 'nelems' elements of 'elems'.
+ Returns 0 in case of success or -1 with errno set in case of error. */
+int xml_read_accept_set (struct xml_reader *reader, struct xml_read_elem **elems, int nelems);
+
+	inline FailCode push() {
+		return xml_read_accept_push_nothing (xmlReader);
+	}
+
+	inline FailCode push(...) {
+		FailCode code = push();
+		if (code) code = set(elems);
+		return code;
+	}
+
+	inline FailCode pop() {
+		return xml_read_accept_pop (xmlReader);
+	}
+
+/* Reads the file of 'path' and parse it. It accepts any of the given
+ 'nroots' elements described by 'roots'. 'data' is a user data pointer
+ given as is in callbacks. Returns 0 in case of success or -1 with
+ errno set in case of error. */
+	FailCode readFile (const std::string &path, xml_read_file (const char *path, struct xml_read_elem **roots, int nroots, void *data);
 
 };
 
@@ -47,51 +95,6 @@ struct xml_read_elem
 #define DECL_XML_READ_ELEM($var,$name,$begin,$end,$characters) \
   struct xml_read_elem $var = XML_READ_ELEM($name,$begin,$end,$characters)
 
-/* Gets the value of the attribute of 'name' in the list 'attrs' as
- given in the "begin" callback. Returns NULL if no attribute of 'name'. */
-const char *xml_read_attribute (const char **attrs, const char *name);
-
-/* Gets a fresh allocated copy of the value of the attribute of 'name' in
- the list 'attrs' as given in the "begin" callback. The allocated string
- is returned in *'copy'. Returns:
-  * 0 if there is no attribute of 'name',
-  * 1 if the attribute of name exists and its value is succefully allocated and copied,
-  * -1 if the attribute of name exists but the allocation failed. */
-int xml_read_attribute_copy (const char **attrs, const char *name, char **copy);
-
-/* Adds the element to the set of currently accepted elements.
- Returns 0 in case of success or -1 with errno set in case of error. */
-int xml_read_accept_add (struct xml_reader *reader, struct xml_read_elem *elem);
-
-/* Removes the element from the set of currently accepted elements.
- Returns 0 in case of success or -1 with errno set in case of error. */
-int xml_read_accept_drop (struct xml_reader *reader, struct xml_read_elem *elem);
-
-/* Sets the set of accepted elements to be the 'nelems' elements of 'elems'.
- Returns 0 in case of success or -1 with errno set in case of error. */
-int xml_read_accept_set (struct xml_reader *reader, struct xml_read_elem **elems, int nelems);
-
-/* Saves the current set of accepted alements and empties the set of
- currently accepted elements until the further matching "xml_read_accept_pop".
- Returns 0 in case of success or -1 with errno set in case of error. */
-int xml_read_accept_push_nothing (struct xml_reader *reader);
-
-/* Saves the current set of accepted element and pushs the new set of
- accepted elements to be the 'nelems' elements of 'elems' until the further
- matching "xml_read_accept_pop". Equivalent to "xml_read_accept_push_nothing"
- followed by "xml_read_accept_set".
- Returns 0 in case of success or -1 with errno set in case of error. */
-int xml_read_accept_push (struct xml_reader *reader, struct xml_read_elem **elems, int nelems);
-
-/* Pops the currently accepted elements and restores the previous set.
- Returns 0 in case of success or -1 with errno set in case of error. */
-int xml_read_accept_pop (struct xml_reader *reader);
-
-/* Reads the file of 'path' and parse it. It accepts any of the given
- 'nroots' elements described by 'roots'. 'data' is a user data pointer
- given as is in callbacks. Returns 0 in case of success or -1 with
- errno set in case of error. */
-int xml_read_file (const char *path, struct xml_read_elem **roots, int nroots, void *data);
 
 
 }

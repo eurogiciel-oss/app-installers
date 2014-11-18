@@ -43,6 +43,7 @@ struct xml_reader
   struct accept accept;		/* accepting state */
 };
 
+#if defined(XML_READ_SORT)
 /* sorting callback (sorting accepting set) */
 static int
 cmpsort (const void *a, const void *b)
@@ -56,6 +57,7 @@ cmpsearch (const void *a, const void *b)
 {
   return cmp ((const char *) a, (*(const struct xml_read_elem **) b)->name);
 }
+#endif
 
 static void
 reader_characters (struct xml_reader *reader, const char *ch, int len)
@@ -84,6 +86,7 @@ reader_start_element (struct xml_reader *reader, const char *name, const char **
     return;
 
   /* search the element in the accepting set */
+#if defined(XML_READ_SORT)
   found =
     bsearch (name, &reader->accept.elems[reader->accept.base],
 	     reader->accept.count, sizeof *reader->accept.elems, cmpsearch);
@@ -91,6 +94,25 @@ reader_start_element (struct xml_reader *reader, const char *name, const char **
     found =
       bsearch ("", &reader->accept.elems[reader->accept.base],
 	       reader->accept.count, sizeof *reader->accept.elems, cmpsearch);
+#else
+  {
+    int i, e;
+    i = reader->accept.base;
+    e = i + reader->accept.count;
+    found = NULL;
+    while (i < e)
+      {
+        if (!reader->accept.elems[i]->name[0])
+          found = &reader->accept.elems[i];
+        else if (is(reader->accept.elems[i]->name, name))
+          {
+            found = &reader->accept.elems[i];
+            break;
+          }
+        i++;
+      }
+  }
+#endif
   if (found == NULL)
     {
       reader->err = EINVAL;
@@ -161,8 +183,9 @@ xml_read_accept_add (struct xml_reader *reader, struct xml_read_elem *elem)
 
   /* add and sort */
   reader->accept.elems[reader->accept.base + reader->accept.count++] = elem;
+#if defined(XML_READ_SORT)
   qsort (&reader->accept.elems[reader->accept.base], reader->accept.count, sizeof *reader->accept.elems, cmpsort);
-
+#endif
   return 0;
 }
 
@@ -213,7 +236,9 @@ xml_read_accept_set (struct xml_reader *reader, struct xml_read_elem **elems, in
   /* set and sort */
   memcpy (&reader->accept.elems[reader->accept.base], elems, nelems * sizeof *reader->accept.elems);
   reader->accept.count = nelems;
+#if defined(XML_READ_SORT)
   qsort (&reader->accept.elems[reader->accept.base], reader->accept.count, sizeof *reader->accept.elems, cmpsort);
+#endif
 
   return 0;
 }

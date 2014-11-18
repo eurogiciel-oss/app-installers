@@ -65,12 +65,12 @@ clean (struct context *context)
 {
   char *decrypted, *original;
 
-  original = context->package_path_drm_save;
+  original = context.package_path_drm_save;
   if (original != NULL)
     {
-      decrypted = context->package_path;
-      context->package_path = original;
-      context->package_path_drm_save = NULL;
+      decrypted = context.package_path;
+      context.package_path = original;
+      context.package_path_drm_save = NULL;
       unlink (decrypted);
       free (decrypted);
     }
@@ -78,14 +78,14 @@ clean (struct context *context)
 }
 
 static int
-process (struct context *context)
+process (void * data)
 {
   int len;
   char *decrypted, *original;
   static const char extension[] = ".d.tpk";
 
-  assert (context->package_path != NULL);
-  assert (context->package_path_drm_save == NULL);
+  assert (context.package_path != NULL);
+  assert (context.package_path_drm_save == NULL);
 
   if (init ())
     return -1;
@@ -93,7 +93,7 @@ process (struct context *context)
   if (handle == NULL)
     return 0;
 
-  original = context->package_path;
+  original = context.package_path;
   len = (int) strlen (original);
 
   if (is_drm_file (original, len) != 1)
@@ -114,11 +114,11 @@ process (struct context *context)
       return -1;
     }
 
-  context->package_path = decrypted;
-  context->package_path_drm_save = original;
+  context.package_path = decrypted;
+  context.package_path_drm_save = original;
   return 0;
 }
 
-struct step step_drm = {.process = process,.undo = clean,.clean = clean, .data = &context };
+struct step step_drm = {.process = process,.undo = clean,.clean = clean, .data = 0 };
 
 #endif

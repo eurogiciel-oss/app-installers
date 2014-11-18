@@ -18,28 +18,28 @@ const char manifest_sub_path[] = "/info/manifest.xml";
 
 
 static int
-process (struct context *context)
+process (void * data)
 {
   size_t length;
   char buffer[PATH_MAX];
 
   /* check length */
-  length = strlen (context->unpack_directory);
+  length = strlen (context.unpack_directory);
   if (length + sizeof manifest_sub_path > sizeof buffer)
-    return fail (ENAMETOOLONG, "path too long %s%s", context->unpack_directory, manifest_sub_path);
+    return fail (ENAMETOOLONG, "path too long %s%s", context.unpack_directory, manifest_sub_path);
 
   /* path of the manifest file */
-  memcpy (buffer, context->unpack_directory, length);
+  memcpy (buffer, context.unpack_directory, length);
   memcpy (buffer + length, manifest_sub_path, sizeof manifest_sub_path);
 
   /* parse */
-  return manifest_tpk_from_xml_file (&context->tpk_manifest, buffer);
+  return manifest_tpk_from_xml_file (&context.tpk_manifest, buffer);
 }
 
 static int
-undo (struct context *context)
+undo (void * data)
 {
   return 0;
 }
 
-struct step step_manifest_tpk = {.process = process,.undo = undo,.clean = 0, .data = &context };
+struct step step_manifest_tpk = {.process = process,.undo = undo,.clean = 0, .data = 0 };

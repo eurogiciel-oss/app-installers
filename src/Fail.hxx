@@ -34,11 +34,13 @@ struct FailCode {
 
   /* default constructor */
   inline FailCode(int code) : value(code) {
-	if (should_throw && code < 0) throw FailException(code);
+	if (should_throw && code < 0)
+		throw FailException(code);
   }
 
   /* Convertion to integer */
   inline operator int() const { return value; }
+  inline operator bool() const { return value >= 0; }
 
   /* global value stating if throw should be done on error (false by default) */
   static bool should_throw;
