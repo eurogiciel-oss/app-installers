@@ -1,39 +1,45 @@
 /* 2014, Copyright © Intel Coporation, license MIT, see COPYING file */
 
 #include <errno.h>
+#include <assert.h>
 
 #include "context.h"
 #include "step.h"
 
 /*
  If the given 'function' is NULL then returns 0 (no error).
- Otherwise, call the function with 'context' and propagate its result.
+ Otherwise, call the function with 'data' and propagate its result.
 */
 static int
-call (int (*function) (struct context *), struct context *context)
+call (int (*function) (data *), void *data)
 {
-  return function ? function (context) : 0;
+  return function ? function (data) : 0;
 }
 
 int
-step_run (struct step **steps, struct context *context)
+step_run (struct step **steps, int count)
 {
   int result, index, saved;
+
+  assert(steps != NULL);
+  assert(count >= 0);
 
   /* process loop */
   result = 0;
   index = 0;
-  while (!result && steps[index])
-    result = call (steps[index++]->process, context);
+  while (!result && index < count)
+    {
+      result = call (steps[index]->process, steps[index]->data);
+      index++;
+    }
 
   /* clean or undo loop */
   saved = errno;
-  if (result)
-    while (index)
-      call (steps[--index]->undo, context);
-  else
-    while (index)
-      call (steps[--index]->clean, context);
+  while (index)
+    {
+      index--;
+      call (result ? steps[index]->undo : steps[index]->clean, steps[index]->data);
+    }
   errno = saved;
 
   /* end */
@@ -41,13 +47,13 @@ step_run (struct step **steps, struct context *context)
 }
 
 #if !defined(NDEBUG)
-struct step step_pass = {.process = 0,.undo = 0,.clean = 0 };
+struct step step_pass = {.process = NULL, .undo = NULL, .clean = NULL, .data = NULL };
 
 static int
-fails (struct context *context)
+fails (void * data)
 {
   errno = ECANCELED;
   return -1;
 }
-struct step step_fails = {.process = fails,.undo = fails,.clean = fails };
+struct step step_fails = {.process = fails,.undo = fails,.clean = fails, .data = NULL };
 #endif
